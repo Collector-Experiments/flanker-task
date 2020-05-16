@@ -47,7 +47,8 @@ Relevant columns:
 - accepted responses: which keyboard characters will be accepted as a response. There's no need for a space or comma between them.
 - correct_response: which keyboard character is the correct response for that trial
 
-This code is free to use without restriction, with the same licensing intentions as Collector (https://github.com/some-open-solutions/collector):
+# Licensing
+This code is free to use without restriction, with the same licensing intentions as Collector originally created by Mikey Garcia (https://github.com/gikeymarcia/Collector), currently developed by some open solutions (https://github.com/some-open-solutions/collector):
 
 Collector (Garcia, Kornell, Kerr, Blake & Haffey)
 A program for running experiments on the web
