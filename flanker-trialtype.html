@@ -1,25 +1,5 @@
 <style>
 
-/*
-
-
-! note that the aim is for the width of the array to be 6.0 degrees and height .6 degree
-! at 70cm from the screen, the width of the array should be 7.3 (calculated using http://elvers.us/perception/visualAngle/)
-! at 70cm from the screen, the height of the array should be 1.2218 (calculated using http://elvers.us/perception/visualAngle/)
-
-
-// current calculations fit with https://stackoverflow.com/questions/10794891/getting-height-of-a-div-in-centimeter-using-jquery
-
-! 1px = 0.02645833 cm;
-
-or 
-! 1 cm = 37.795276px;
-
-! so total width should be 7.4596 * 37.795276px = 281.9376408px
-! width of each arrow should be 281.9376408/7 = 40.27680583px (or 40px)
-
-*/
-
 #all_div{
   position: absolute;
   top:0;
@@ -30,32 +10,32 @@ or
   width:400px;
   height:200px;
 }
-#arrow_1{
+#character_1{
   position:absolute;
   left:0px;
 }
-#arrow_2{
+#character_2{
   position:absolute;
   left:55px;
 }
-#arrow_3{
+#character_3{
   position:absolute;
   left:110px;
 }
-#arrow_4,
+#character_4,
 #fixation_cross{
   position:absolute;
   left:165px;
 }
-#arrow_5{
+#character_5{
   position:absolute;
   left:220px;
 }
-#arrow_6{
+#character_6{
   position:absolute;
   left:275px;
 }
-#arrow_7{
+#character_7{
   position:absolute;
   left:330px;
 }
@@ -88,18 +68,7 @@ or
   border-style: none;
   background: transparent;
 }
-#unseen_button:focus{
-  outline:none;
-  background-color: white;
-  box-shadow: 0 0 0px white;
-  border-style: none;
-  background: transparent;
-}
-
-body{
-  /* cursor:none;  //opting to request participant to hide cursor instead */
-}
-.arrow_sign{
+.task_character{
   font-size: 100px;
   width:30px;
   font-family:Arial;
@@ -114,17 +83,16 @@ body{
 * {
 cursor: none;
 }
-
 </style>
 
 <div id="all_div">
-  <span class="arrow_sign outer_stim" id="arrow_1">{{outer_arrow}}</span>
-  <span class="arrow_sign outer_stim" id="arrow_2">{{outer_arrow}}</span>
-  <span class="arrow_sign outer_stim" id="arrow_3">{{outer_arrow}}</span>
-  <span class="arrow_sign"            id="arrow_4">{{middle_arrow}}</span>
-  <span class="arrow_sign outer_stim" id="arrow_5">{{outer_arrow}}</span>
-  <span class="arrow_sign outer_stim" id="arrow_6">{{outer_arrow}}</span>
-  <span class="arrow_sign outer_stim" id="arrow_7">{{outer_arrow}}</span>
+  <span class="task_character outer_stim" id="character_1">{{outer_character}}</span>
+  <span class="task_character outer_stim" id="character_2">{{outer_character}}</span>
+  <span class="task_character outer_stim" id="character_3">{{outer_character}}</span>
+  <span class="task_character"            id="character_4">{{inner_character}}</span>
+  <span class="task_character outer_stim" id="character_5">{{outer_character}}</span>
+  <span class="task_character outer_stim" id="character_6">{{outer_character}}</span>
+  <span class="task_character outer_stim" id="character_7">{{outer_character}}</span>
   <span                        id="fixation_cross">+</span>
 </div>
 
@@ -136,76 +104,81 @@ cursor: none;
 <input type="hidden" id="isi"            name="jitter">
 
 <script>
-
-
 correct_response = "{{correct_response}}";
-jitter           = "{{jitter}}";
 
-if(jitter.indexOf("jitter") !== -1){
-  jitter = 1000;
+//by Francisc at https://stackoverflow.com/questions/4959975/generate-random-number-between-two-numbers-in-javascript
+function randomIntFromInterval(min, max) { // min and max included 
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 
+jitter = "{{jitter}}";                                                          // set the jitter
+if(jitter.indexOf("jitter") !== -1 || 
+  "{{jitter}}" == ""){
+  jitter = 1000;
+} else if(jitter.indexOf(":") !== -1){
+  jitter = jitter.split(":");
+  jitter = randomIntFromInterval(parseFloat(jitter[0]),parseFloat(jitter[1]));  //select random number between top and bottom of jitter
+} else if(jitter.indexOf(" to ") !== -1){
+  jitter = jitter.split(" to ");
+  jitter = randomIntFromInterval(parseFloat(jitter[0]),parseFloat(jitter[1]));  //select random number between top and bottom of jitter
+}
 $("#jitter").val(jitter);
+
+inner_wait = "{{inner_wait}}";
+if(inner_wait.indexOf("inner_wait") !== -1 || 
+  "{{inner_wait}}" == ""){
+  inner_wait = 100;
+} else if(inner_wait.indexOf(":") !== -1){
+  inner_wait = inner_wait.split(":");
+  inner_wait = randomIntFromInterval(parseFloat(inner_wait),parseFloat(inner_wait[1]));  //select random number between top and bottom of inner_wait
+} else if(inner_wait.indexOf(" to ") !== -1){
+  inner_wait = inner_wait.split(" to ");
+  inner_wait = randomIntFromInterval(parseFloat(inner_wait[0]),parseFloat(inner_wait[1]));  //select random number between top and bottom of inner_wait
+}
 
 Trial.set_timer(function(){
   $(".outer_stim").show();
   setTimeout(function(){
-    $("#arrow_4").show();
+    $("#character_4").show();
     baseline_time = (new Date()).getTime();
     responses_accepted();
-  },100);
+  },inner_wait);
 },jitter);
-
 
 function responses_accepted(){
   var responses_waiting = true;
-  if("{{flanker_max_time}}".indexOf("flanker_max_time") == -1){
-    if(responses_waiting){
-      setTimeout(function(){
+  if("{{inner_max_time}}".indexOf("inner_max_time") == -1 && 
+    "{{inner_max_time}}" !== ""){
+    setTimeout(function(){
+      if(responses_waiting){
         show_feedback(0);
-      },"{{flanker_max_time}}");
-    }
+      }
+    },"{{inner_max_time}}");
   }
   $(window).bind('keydown', function(event) {
-    switch (event.which) {
-      case 90:
-        responses_waiting = false;
-        $("#input_response").val("Left");
-        $("#input_RT").val((new Date()).getTime()-baseline_time);
-        if(correct_response == "left"){
-          $("#input_accuracy").val(1);
-          parent.accuracy = 1;
-        } else {
-          $("#input_accuracy").val(0);
-          parent.accuracy = 0;
-        }
-        show_feedback(parent.accuracy);
-      break;
-      case 77:
-        responses_waiting = false;
-        $("#input_response").val("Right");
-        $("#input_RT").val((new Date()).getTime()-baseline_time);
-        if(correct_response == "left"){
-          $("#input_accuracy").val(0);
-          parent.accuracy = 0;
-        } else {
-          $("#input_accuracy").val(1);
-          parent.accuracy = 1;
-        }
-        show_feedback(parent.accuracy);
-      break;
+    var this_resp_char = String.fromCharCode(event.which).toLowerCase();
+    if("{{accepted_responses}}".indexOf(this_resp_char) !== -1){
+      responses_waiting = false;
+      $("#input_response").val(this_resp_char);
+      $("#input_RT").val((new Date()).getTime()-baseline_time);
+      if(this_resp_char == correct_response){                                   //correct
+        $("#input_accuracy").val(1);
+        show_feedback(1);
+      } else {                                                                  //incorrect
+        $("#input_accuracy").val(0);
+        show_feedback(0);
+      }
     }
   });
 }
-
 
 function show_feedback(this_accuracy){
   if("{{feedback}}" == "on"){
     // prevent keydown events
     $(window).off('keydown'); // prevents participant responding again after their first response
     $("#fixation_cross").show();
-    $(".arrow_sign").css("color","white");
+    $(".task_character").css("color","white");
     if(this_accuracy == false){
       $("#fixation_cross").css("color","red");
     } else {
