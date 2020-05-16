@@ -1,0 +1,219 @@
+<style>
+
+/*
+
+
+! note that the aim is for the width of the array to be 6.0 degrees and height .6 degree
+! at 70cm from the screen, the width of the array should be 7.3 (calculated using http://elvers.us/perception/visualAngle/)
+! at 70cm from the screen, the height of the array should be 1.2218 (calculated using http://elvers.us/perception/visualAngle/)
+
+
+// current calculations fit with https://stackoverflow.com/questions/10794891/getting-height-of-a-div-in-centimeter-using-jquery
+
+! 1px = 0.02645833 cm;
+
+or 
+! 1 cm = 37.795276px;
+
+! so total width should be 7.4596 * 37.795276px = 281.9376408px
+! width of each arrow should be 281.9376408/7 = 40.27680583px (or 40px)
+
+*/
+
+#all_div{
+  position: absolute;
+  top:0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin:auto;
+  width:400px;
+  height:200px;
+}
+#arrow_1{
+  position:absolute;
+  left:0px;
+}
+#arrow_2{
+  position:absolute;
+  left:55px;
+}
+#arrow_3{
+  position:absolute;
+  left:110px;
+}
+#arrow_4,
+#fixation_cross{
+  position:absolute;
+  left:165px;
+}
+#arrow_5{
+  position:absolute;
+  left:220px;
+}
+#arrow_6{
+  position:absolute;
+  left:275px;
+}
+#arrow_7{
+  position:absolute;
+  left:330px;
+}
+#fixation_cross{
+  font-size: 100px;
+  font-family:Arial;
+  width:30px;
+  display:none;
+}
+#input_response{
+  width:0px;
+}
+#stim_div{
+  margin: auto;
+  width: 400px;
+  font-size:60px;
+  font-family:Arial;
+}
+#stim_table td{
+  width: 60px;
+  height: 60px;
+  margin:auto;
+  text-align:center;
+  vertical-align: middle;
+}
+#unseen_button{
+  outline:none;
+  background-color: white;
+  box-shadow: 0 0 0px white;
+  border-style: none;
+  background: transparent;
+}
+#unseen_button:focus{
+  outline:none;
+  background-color: white;
+  box-shadow: 0 0 0px white;
+  border-style: none;
+  background: transparent;
+}
+
+body{
+  /* cursor:none;  //opting to request participant to hide cursor instead */
+}
+.arrow_sign{
+  font-size: 100px;
+  width:30px;
+  font-family:Arial;
+  display:none;
+}
+.outer_stim{
+  display:none;
+}
+.inner_stim{
+  display:none;
+}
+* {
+cursor: none;
+}
+
+</style>
+
+<div id="all_div">
+  <span class="arrow_sign outer_stim" id="arrow_1">{{outer_arrow}}</span>
+  <span class="arrow_sign outer_stim" id="arrow_2">{{outer_arrow}}</span>
+  <span class="arrow_sign outer_stim" id="arrow_3">{{outer_arrow}}</span>
+  <span class="arrow_sign"            id="arrow_4">{{middle_arrow}}</span>
+  <span class="arrow_sign outer_stim" id="arrow_5">{{outer_arrow}}</span>
+  <span class="arrow_sign outer_stim" id="arrow_6">{{outer_arrow}}</span>
+  <span class="arrow_sign outer_stim" id="arrow_7">{{outer_arrow}}</span>
+  <span                        id="fixation_cross">+</span>
+</div>
+
+<input type="button" id="unseen_button"> <!-- to capture keyboard responses -->
+
+<input type="hidden" id="input_response" name="response">
+<input type="hidden" id="input_RT"       name="RT">
+<input type="hidden" id="input_accuracy" name="accuracy">
+<input type="hidden" id="isi"            name="jitter">
+
+<script>
+
+
+correct_response = "{{correct_response}}";
+jitter           = "{{jitter}}";
+
+if(jitter.indexOf("jitter") !== -1){
+  jitter = 1000;
+}
+
+
+$("#jitter").val(jitter);
+
+Trial.set_timer(function(){
+  $(".outer_stim").show();
+  setTimeout(function(){
+    $("#arrow_4").show();
+    baseline_time = (new Date()).getTime();
+    responses_accepted();
+  },100);
+},jitter);
+
+
+function responses_accepted(){
+  var responses_waiting = true;
+  if("{{flanker_max_time}}".indexOf("flanker_max_time") == -1){
+    if(responses_waiting){
+      setTimeout(function(){
+        show_feedback(0);
+      },"{{flanker_max_time}}");
+    }
+  }
+  $(window).bind('keydown', function(event) {
+    switch (event.which) {
+      case 90:
+        responses_waiting = false;
+        $("#input_response").val("Left");
+        $("#input_RT").val((new Date()).getTime()-baseline_time);
+        if(correct_response == "left"){
+          $("#input_accuracy").val(1);
+          parent.accuracy = 1;
+        } else {
+          $("#input_accuracy").val(0);
+          parent.accuracy = 0;
+        }
+        show_feedback(parent.accuracy);
+      break;
+      case 77:
+        responses_waiting = false;
+        $("#input_response").val("Right");
+        $("#input_RT").val((new Date()).getTime()-baseline_time);
+        if(correct_response == "left"){
+          $("#input_accuracy").val(0);
+          parent.accuracy = 0;
+        } else {
+          $("#input_accuracy").val(1);
+          parent.accuracy = 1;
+        }
+        show_feedback(parent.accuracy);
+      break;
+    }
+  });
+}
+
+
+function show_feedback(this_accuracy){
+  if("{{feedback}}" == "on"){
+    // prevent keydown events
+    $(window).off('keydown'); // prevents participant responding again after their first response
+    $("#fixation_cross").show();
+    $(".arrow_sign").css("color","white");
+    if(this_accuracy == false){
+      $("#fixation_cross").css("color","red");
+    } else {
+      $("#fixation_cross").css("color","green");
+    }
+  }
+  setTimeout(function(){
+    Trial.submit();
+  },500);
+}
+</script>
