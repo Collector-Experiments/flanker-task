@@ -1,6 +1,6 @@
 # flanker-task
 
-A simple flanker task with three arrows either side of a middle arrow.
+A simple flanker task with three characters either side of a middle character.
 
 To download the whole experiment right click on https://raw.githubusercontent.com/Collector-Trialtypes/flanker-task/master/flanker-experiment.json and click "save link as". Similarly, to save just the trialtype right click on https://raw.githubusercontent.com/Collector-Trialtypes/flanker-task/master/flanker-trialtype.html and click "save link as".
 
