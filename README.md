@@ -25,10 +25,15 @@ Optimised for Collector (go to https://some-open-solutions.github.io/ocollector/
 To make this trialtype work without collector, take note of the "{{" "}}" variables which need to change every trial.
 
 To download the whole experiment right click on
+
 https://raw.githubusercontent.com/Collector-Trialtypes/flanker-task/master/flanker-experiment.json
+
 and click "save link as". 
+
 Similarly, to save just the trialtype right click on 
+
 https://raw.githubusercontent.com/Collector-Trialtypes/flanker-task/master/flanker-trialtype.html 
+
 and click "save link as".
 
 Relevant columns:
